@@ -156,6 +156,42 @@ MODE_B_PRIMARY_SHEET_PATTERNS = [
     "orders", "sales", "results"
 ]
 
+HTML_EXPORT_CSS = """
+<style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0f1419; color: #ffffff; line-height: 1.6; }
+    .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
+    .header { background: linear-gradient(135deg, #0f1419 0%, #1a1f2e 100%); padding: 30px; border-radius: 12px; border-left: 5px solid #00d4ff; margin-bottom: 30px; }
+    .header h1 { font-size: 28px; margin-bottom: 10px; color: #00d4ff; }
+    .tabs { display: flex; gap: 10px; margin-bottom: 30px; border-bottom: 2px solid #1a1f2e; padding-bottom: 15px; flex-wrap: wrap; }
+    .tab-button { padding: 10px 20px; background: #1a1f2e; border: 1px solid #2d3748; color: #a0aec0; cursor: pointer; border-radius: 6px; transition: all 0.3s; }
+    .tab-button.active { background: #00d4ff; color: #0f1419; font-weight: bold; }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+    .chart-container { background: #1a1f2e; padding: 20px; border-radius: 10px; margin-bottom: 20px; border: 1px solid #2d3748; }
+    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 30px; }
+    .kpi-card { background: #1a1f2e; padding: 20px; border-radius: 10px; border-left: 4px solid #00d4ff; }
+    .kpi-card h3 { font-size: 13px; color: #a0aec0; margin-bottom: 10px; text-transform: uppercase; }
+    .kpi-card .value { font-size: 24px; font-weight: bold; color: #00d4ff; }
+    table { width: 100%; border-collapse: collapse; margin-top: 15px; color: #e2e8f0; font-size: 13px; }
+    th, td { padding: 10px; text-align: left; border-bottom: 1px solid #2d3748; }
+    th { background: #0f1419; color: #00d4ff; }
+    @media print {
+        body { background: white; color: black; }
+        .header { background: #f5f5f5; }
+        .tab-button { display: none; }
+        .tab-content { display: block !important; }
+        .chart-container { page-break-inside: avoid; }
+    }
+</style>
+"""
+
+CUSTOM_CSS = """
+<style>
+    .main { background-color: #0e1117; }
+</style>
+"""
+
 SESSION_STATE_DEFAULTS = {
     "file_uploaded": False,
     "ingestion_mode": "A",
