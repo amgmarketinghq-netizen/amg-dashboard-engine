@@ -1,6 +1,6 @@
 """
 AMG Dashboard Generator - Main Streamlit Application (Enterprise Grade)
-Streamlit UI orchestrator with persistent states and zero-blocker pipeline
+Streamlit UI orchestrator with universal CRM and Financial support
 """
 
 import streamlit as st
@@ -16,8 +16,7 @@ from core.qa_engine import QAEngine
 from core.chart_builder import ChartBuilder
 from core.exporter import Exporter
 from config import (
-    THEMES, TIER_DEFINITIONS, SECTOR_DEFINITIONS, SESSION_STATE_DEFAULTS,
-    CURRENCY_SYMBOLS
+    THEMES, TIER_DEFINITIONS, SECTOR_DEFINITIONS, SESSION_STATE_DEFAULTS
 )
 
 # Page Config
@@ -75,7 +74,7 @@ with st.sidebar:
 # ============================================
 
 st.title("📊 AMG Dashboard Generator")
-st.caption("Enterprise Business Intelligence Engine | Deterministic Math | Global Multi-Currency")
+st.caption("Enterprise Business Intelligence Engine | Sales, Finance & CRM Lead Support")
 
 # Step 1: File Ingestion
 st.header("Step 1: Upload Dataset")
@@ -131,9 +130,9 @@ with col2:
     status = "🟢 HEALTHY" if qa_report['quality_score'] >= 80 else "🟡 AUDITED"
     st.metric("Status", status)
 with col3:
-    st.metric("Metrics Identified", len(numeric_cols))
+    st.metric("Metrics Tracked", len(numeric_cols))
 with col4:
-    st.metric("Temporal Fields", len(date_cols))
+    st.metric("Dimensions", len(category_cols))
 
 with st.expander("📋 Inspection Audit Log", expanded=False):
     for w in st.session_state.qa_warnings:
@@ -163,20 +162,25 @@ if st.button("🚀 Generate Executive Dashboard", use_container_width=True, type
     with st.spinner("Building interactive charts and executive metrics..."):
         builder = ChartBuilder(theme=st.session_state.theme)
         figs = {}
-        figs["kpis"] = builder.create_kpi_cards(cleaned_df, numeric_cols, max_cards=3)
+        figs["kpis"] = builder.create_kpi_cards(cleaned_df, numeric_cols, category_cols)
         
-        if date_cols and numeric_cols:
-            fig, _ = builder.create_trend_chart(cleaned_df, date_cols[0], numeric_cols[:2])
+        # Primary Trend Chart
+        if date_cols:
+            metric_to_plot = [c for c in numeric_cols if c != "Record Count"] or numeric_cols
+            fig, _ = builder.create_trend_chart(cleaned_df, date_cols[0], metric_to_plot)
             figs["trend"] = fig
             
-        if category_cols and numeric_cols:
-            fig_bar, _ = builder.create_bar_chart(cleaned_df, category_cols[0], numeric_cols[0])
-            fig_pie, _ = builder.create_pie_chart(cleaned_df, category_cols[0], numeric_cols[0])
+        # Category Breakdown Charts (Works for CRM & Sales)
+        if category_cols:
+            metric_target = numeric_cols[0] if numeric_cols else "Record Count"
+            fig_bar, _ = builder.create_bar_chart(cleaned_df, category_cols[0], metric_target)
+            fig_pie, _ = builder.create_pie_chart(cleaned_df, category_cols[0], metric_target)
             figs["bar"] = fig_bar
             figs["pie"] = fig_pie
             
-        if numeric_cols:
-            fig_hist, _ = builder.create_histogram(cleaned_df, numeric_cols[0])
+        real_num = [c for c in numeric_cols if c != "Record Count"]
+        if real_num:
+            fig_hist, _ = builder.create_histogram(cleaned_df, real_num[0])
             figs["histogram"] = fig_hist
             
         figs["insights"] = builder.generate_executive_insights(cleaned_df, numeric_cols, category_cols)
@@ -184,7 +188,7 @@ if st.button("🚀 Generate Executive Dashboard", use_container_width=True, type
         st.session_state.figures = figs
         st.session_state.dashboard_generated = True
 
-# Persistent Rendering (Survives Re-runs and Downloads)
+# Persistent Rendering (Safe Columns Guard)
 if st.session_state.dashboard_generated and st.session_state.figures:
     figures = st.session_state.figures
     page_count = min(st.session_state.tier + 1, 3)
@@ -192,11 +196,13 @@ if st.session_state.dashboard_generated and st.session_state.figures:
     
     with tabs[0]:
         st.subheader("Executive Overview & KPIs")
-        kpi_cols = st.columns(min(3, len(numeric_cols)))
-        for i, col in enumerate(numeric_cols[:3]):
+        kpis_dict = figures.get("kpis", {})
+        num_cards = max(1, min(3, len(kpis_dict)))
+        kpi_cols = st.columns(num_cards)
+        
+        for i, (k_name, k_val) in enumerate(list(kpis_dict.items())[:3]):
             with kpi_cols[i]:
-                kpi = figures["kpis"][col]
-                st.metric(col, kpi["total"], f"Avg: {kpi['average']}")
+                st.metric(k_name, k_val["total"], f"{k_val['average']}")
                 
         if "insights" in figures and figures["insights"]:
             st.info("\n\n".join([f"• {ins}" for ins in figures["insights"]]))
